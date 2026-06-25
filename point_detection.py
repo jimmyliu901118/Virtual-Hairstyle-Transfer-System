@@ -1,44 +1,37 @@
-"""
-代碼功能：
-1. 用 dlib 人臉檢測器檢測出人脸，返回的人臉矩形框
-2. 對檢測出的人臉進行關鍵點檢測並用圈進行標記
-3. 將檢測出的人臉關鍵點信息寫到 txt 文本中
-"""
 import cv2
 import dlib
 import numpy as np
-
+import os
 
 predictor_model = 'shape_predictor_68_face_landmarks.dat'
-detector = dlib.get_frontal_face_detector() # dlib 人臉檢測器
+detector = dlib.get_frontal_face_detector() 
 predictor = dlib.shape_predictor(predictor_model)
 
-# cv2 讀取圖像
-test_img_path = "Messi.jpg"
-output_pos_info = "output_pos_info/Messi.txt"
+# 🎯 【手動修改區】你想偵測哪張圖，就改這兩個名字！
+test_img_path = "Messi.jpg"           # 換成你想跑的圖片名稱 (例如 "hair_50.jpg")
+output_pos_info = "Messi.txt"         # 換成你想輸出的 txt 名稱 (例如 "hair_50.txt")
+
 img = cv2.imread(test_img_path)
-file_handle = open(output_pos_info, 'a')
+if img is None:
+    print(f"[Error] 找不到圖片: {test_img_path}")
+    exit()
 
-# 取灰度
-img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+# 確保直接寫在當前資料夾，不另外建資料夾以免報錯
+file_handle = open(output_pos_info, 'w') # 改用 'w'，每次重跑就覆蓋舊點，才不會疊加
 
-# 人臉數 rects（rectangles）
+img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 rects = detector(img_gray, 0)
 
+if len(rects) == 0:
+    print(f"[Warning] {test_img_path} 沒偵測到人臉！")
 
 for i in range(len(rects)):
-    landmarks = np.matrix([[p.x, p.y] for p in predictor(img,rects[i]).parts()])
+    landmarks = np.matrix([[p.x, p.y] for p in predictor(img, rects[i]).parts()])
     for idx, point in enumerate(landmarks):
-        # 68 個點的座標
         pos = (point[0, 0], point[0, 1])
-        print(idx+1, pos)
         pos_info = str(point[0, 0]) + ' ' + str(point[0, 1]) + '\n'
         file_handle.write(pos_info)
-        # 利用 cv2.circle 给每個特征點畫一個圈，共 68 個
         cv2.circle(img, pos, 3, color=(0, 255, 0))
-        # 利用 cv2.putText 輸出 1-68
-        # font = cv2.FONT_HERSHEY_SIMPLEX
-        # cv2.putText(img, str(idx+1), pos, font, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
 
 file_handle.close()
-cv2.imwrite("output/Messi_keypoints.png", img)
+print(f"[SUCCESS] {test_img_path} 偵測完成，座標已寫入 {output_pos_info}")
