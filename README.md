@@ -14,7 +14,7 @@ The project is structurally divided into three core stages:
 1. **Facial Landmark Extraction (`point_detection.py`)**
    - Utilizes `dlib`'s HOG-based face detector and 68-landmark shape predictor.
    - Automatically extracts facial coordinates (eyes, nose, forehead contours) to serve as geometric bridges.
-2. **Generative Modeling (`GAN_hairstyle.ipynb`)**
+2. **Generative Modeling (`GAN_Virtual_Hairstyle.ipynb`)**
    - Implements a **WGAN-GP (Wasserstein GAN with Gradient Penalty)** framework.
    - Built with PyTorch to mitigate mode collapse and vanishing gradients, training on 70k+ images to synthesize high-quality hairstyle assets from scratch.
 3. **Geometric Alignment & Compositing (`pasting_blending.py`)**
